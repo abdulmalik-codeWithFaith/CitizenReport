@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // users/{userId} — a user can read any profile (to show reporterName)
+    // but can only create/update their own document.
+    match /users/{userId} {
+      allow read: if request.auth != null;
+      allow create: if request.auth != null && request.auth.uid == userId;
+      allow update: if request.auth != null && request.auth.uid == userId;
+      allow delete: if false;
+    }
+
+    // incidents/{incidentId} — any signed-in user can read the feed and
+    // create new reports. Only the original reporter can edit or delete
+    // their own incident.
+    match /incidents/{incidentId} {
+      allow read: if request.auth != null;
+
+      allow create: if request.auth != null
+                    && request.resource.data.reporterId == request.auth.uid
+                    && request.resource.data.title is string
+                    && request.resource.data.title.size() > 0
+                    && request.resource.data.category is string
+                    && request.resource.data.description is string
+                    && request.resource.data.latitude is number
+                    && request.resource.data.longitude is number;
+
+      allow update, delete: if request.auth != null
+                    && resource.data.reporterId == request.auth.uid;
+    }
+  }
+}

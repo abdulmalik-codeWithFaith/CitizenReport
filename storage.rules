@@ -1,0 +1,16 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // incident-photos/{incidentId}.jpg
+    // Any signed-in user can view photos (needed to render the feed).
+    // Only signed-in users can upload, and each file must be a reasonably
+    // sized image (guards against abuse/huge uploads).
+    match /incident-photos/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+                   && request.resource.size < 8 * 1024 * 1024
+                   && request.resource.contentType.matches('image/.*');
+    }
+  }
+}

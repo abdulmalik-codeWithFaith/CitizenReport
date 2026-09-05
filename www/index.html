@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width, viewport-fit=cover" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: https://ssl.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: content: https: blob:; connect-src 'self' https: wss:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:;" />
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>CitizenReport</title>
+</head>
+<body>
+
+    <!-- ============ SPLASH / LOADING OVERLAY ============ -->
+    <div id="global-loader" class="loader-overlay hidden">
+        <div class="spinner"></div>
+        <p id="loader-text">Loading…</p>
+    </div>
+
+    <!-- ============ TOAST (error/success messages) ============ -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- ============ SCREEN: LOGIN ============ -->
+    <section id="screen-login" class="screen active">
+        <div class="auth-wrap">
+            <div class="brand">
+                <div class="brand-mark">CR</div>
+                <h1>CitizenReport</h1>
+                <p class="tagline">See something. Say something.</p>
+            </div>
+
+            <form id="form-login" class="auth-form" novalidate>
+                <label for="login-email">Email</label>
+                <input type="email" id="login-email" placeholder="you@example.com" required autocomplete="email" />
+
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="••••••••" required autocomplete="current-password" />
+
+                <p id="login-error" class="field-error hidden"></p>
+
+                <button type="submit" class="btn btn-primary">Log in</button>
+            </form>
+
+            <p class="switch-auth">New here? <a href="#" id="go-to-register">Create an account</a></p>
+        </div>
+    </section>
+
+    <!-- ============ SCREEN: REGISTER ============ -->
+    <section id="screen-register" class="screen">
+        <div class="auth-wrap">
+            <div class="brand">
+                <div class="brand-mark">CR</div>
+                <h1>Create your account</h1>
+                <p class="tagline">Join your community's safety network</p>
+            </div>
+
+            <form id="form-register" class="auth-form" novalidate>
+                <label for="register-name">Full name</label>
+                <input type="text" id="register-name" placeholder="Ada Lovelace" required autocomplete="name" />
+
+                <label for="register-email">Email</label>
+                <input type="email" id="register-email" placeholder="you@example.com" required autocomplete="email" />
+
+                <label for="register-password">Password</label>
+                <input type="password" id="register-password" placeholder="At least 6 characters" required autocomplete="new-password" />
+
+                <p id="register-error" class="field-error hidden"></p>
+
+                <button type="submit" class="btn btn-primary">Create account</button>
+            </form>
+
+            <p class="switch-auth">Already registered? <a href="#" id="go-to-login">Log in</a></p>
+        </div>
+    </section>
+
+    <!-- ============ SCREEN: HOME (FEED) ============ -->
+    <section id="screen-home" class="screen">
+        <header class="topbar">
+            <div>
+                <p class="topbar-eyebrow">Live feed</p>
+                <h1 class="topbar-title">Incidents nearby</h1>
+            </div>
+            <button id="btn-logout" class="icon-btn" title="Log out" aria-label="Log out">⎋</button>
+        </header>
+
+        <div class="filter-row" id="filter-row">
+            <button class="chip chip-active" data-category="All">All</button>
+            <button class="chip" data-category="Accident">Accident</button>
+            <button class="chip" data-category="Fighting">Fighting</button>
+            <button class="chip" data-category="Rioting">Rioting</button>
+            <button class="chip" data-category="Robbery">Robbery</button>
+            <button class="chip" data-category="Fire">Fire</button>
+            <button class="chip" data-category="Other">Other</button>
+        </div>
+
+        <div id="home-empty" class="empty-state hidden">
+            <p class="empty-title">No incidents yet</p>
+            <p class="empty-sub">Reports from your community will show up here as soon as they're submitted.</p>
+        </div>
+
+        <div id="incident-list" class="incident-list"></div>
+    </section>
+
+    <!-- ============ SCREEN: REPORT INCIDENT ============ -->
+    <section id="screen-report" class="screen">
+        <header class="topbar">
+            <button id="btn-back-from-report" class="icon-btn" aria-label="Back">←</button>
+            <div>
+                <p class="topbar-eyebrow">New report</p>
+                <h1 class="topbar-title">Report an incident</h1>
+            </div>
+            <span style="width:40px"></span>
+        </header>
+
+        <form id="form-report" class="report-form" novalidate>
+            <label for="report-title">Title</label>
+            <input type="text" id="report-title" placeholder="e.g. Two-car collision on Ring Road" required />
+
+            <label for="report-category">Category</label>
+            <select id="report-category" required>
+                <option value="Accident">Accident</option>
+                <option value="Fighting">Fighting</option>
+                <option value="Rioting">Rioting</option>
+                <option value="Robbery">Robbery</option>
+                <option value="Fire">Fire</option>
+                <option value="Other">Other</option>
+            </select>
+
+            <label for="report-description">Description</label>
+            <textarea id="report-description" rows="4" placeholder="What did you see? Be as specific as possible." required></textarea>
+
+            <label>Photo</label>
+            <div class="photo-picker">
+                <img id="report-photo-preview" class="photo-preview hidden" alt="Selected incident photo" />
+                <div id="photo-placeholder" class="photo-placeholder">
+                    <span>No photo selected</span>
+                </div>
+                <div class="photo-actions">
+                    <button type="button" id="btn-take-photo" class="btn btn-secondary btn-small">Take photo</button>
+                    <button type="button" id="btn-pick-photo" class="btn btn-secondary btn-small">Choose from gallery</button>
+                </div>
+            </div>
+
+            <label>Location</label>
+            <div id="location-status" class="location-box">
+                <span id="location-text">Fetching your current location…</span>
+                <button type="button" id="btn-retry-location" class="btn-link hidden">Retry</button>
+            </div>
+
+            <p id="report-error" class="field-error hidden"></p>
+
+            <button type="submit" class="btn btn-primary" id="btn-submit-report">Submit report</button>
+        </form>
+    </section>
+
+    <!-- ============ SCREEN: INCIDENT DETAIL ============ -->
+    <section id="screen-detail" class="screen">
+        <header class="topbar">
+            <button id="btn-back-from-detail" class="icon-btn" aria-label="Back">←</button>
+            <div>
+                <p class="topbar-eyebrow" id="detail-category">Category</p>
+                <h1 class="topbar-title">Incident details</h1>
+            </div>
+            <span style="width:40px"></span>
+        </header>
+
+        <div class="detail-wrap">
+            <img id="detail-photo" class="detail-photo hidden" alt="Incident photo" />
+            <div class="detail-body">
+                <h2 id="detail-title"></h2>
+                <p class="detail-meta" id="detail-meta"></p>
+                <p id="detail-description" class="detail-description"></p>
+
+                <div class="detail-location-card">
+                    <p class="detail-location-label">Reported location</p>
+                    <p id="detail-coords" class="detail-coords"></p>
+                    <a id="detail-map-link" href="#" target="_blank" class="btn-link">Open in Maps</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ SCREEN: MY REPORTS ============ -->
+    <section id="screen-myreports" class="screen">
+        <header class="topbar">
+            <div>
+                <p class="topbar-eyebrow">Your history</p>
+                <h1 class="topbar-title">My reports</h1>
+            </div>
+            <span style="width:40px"></span>
+        </header>
+
+        <div id="myreports-empty" class="empty-state hidden">
+            <p class="empty-title">You haven't reported anything yet</p>
+            <p class="empty-sub">Tap the Report button below to submit your first incident.</p>
+        </div>
+
+        <div id="myreports-list" class="incident-list"></div>
+    </section>
+
+    <!-- ============ BOTTOM NAVIGATION (shown once logged in) ============ -->
+    <nav id="bottom-nav" class="bottom-nav hidden">
+        <button class="nav-btn nav-btn-active" data-target="screen-home">
+            <span class="nav-icon">⌂</span><span>Feed</span>
+        </button>
+        <button class="nav-btn nav-btn-report" data-target="screen-report">
+            <span class="nav-icon">＋</span><span>Report</span>
+        </button>
+        <button class="nav-btn" data-target="screen-myreports">
+            <span class="nav-icon">☰</span><span>Mine</span>
+        </button>
+    </nav>
+
+    <!-- ============ SCRIPTS ============ -->
+    <script src="cordova.js"></script>
+
+    <!-- Firebase (compat SDK - simplest for a Cordova/vanilla-JS app) -->
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-storage-compat.js"></script>
+
+    <script src="js/firebase-config.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/geolocation.js"></script>
+    <script src="js/camera.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/incidents.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
